@@ -1,0 +1,6 @@
+{
+  "name": "Vinted Flip Ledger",
+  "description": "Ein Premium-Buchhaltungs- und Accounting-Dashboard für Ihr Vinted-Reseller-Business.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
