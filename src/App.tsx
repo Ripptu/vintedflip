@@ -81,34 +81,19 @@ const PACKAGE_OPTIONS: PkgOpt[] = [
 /*  Persistence                                                                */
 /* -------------------------------------------------------------------------- */
 
-const STORAGE_KEY = 'paintball_planner_v1';
+const STORAGE_KEY = 'paintball_planner_v2';
 const USER_KEY = 'paintball_user_v1';
 
 function getInitialState(): PlannerState {
-  // Realistic, pre-populated mock data so the app feels lived-in from the start.
+  // Clean slate — no pre-existing votes or seat assignments.
   return {
-    dates: {
-      d1: ['Lukas', 'Mia', 'Jonas', 'Emma'],
-      d2: ['Lukas', 'Mia', 'Jonas', 'Noah', 'Lena'],
-      d3: ['Emma', 'Noah'],
-    },
-    restaurants: {
-      r1: ['Lukas', 'Mia', 'Noah'],
-      r2: ['Mia', 'Jonas', 'Emma', 'Lena'],
-      r3: ['Lukas', 'Jonas'],
-    },
-    packages: {
-      Lukas: 'p2',
-      Mia: 'p2',
-      Jonas: 'p1',
-      Emma: 'p2',
-      Noah: 'p3',
-      Lena: 'p1',
-    },
+    dates: { d1: [], d2: [], d3: [] },
+    restaurants: { r1: [], r2: [], r3: [] },
+    packages: {},
     cars: [
-      { id: 'c1', name: 'Auto 1', seats: ['Lukas', 'Mia', 'Jonas', null, null] },
-      { id: 'c2', name: 'Auto 2', seats: ['Emma', 'Noah', null, null, null] },
-      { id: 'c3', name: 'Auto 3', seats: ['Lena', null, null, null, null] },
+      { id: 'c1', name: 'Auto 1', seats: [null, null, null, null, null] },
+      { id: 'c2', name: 'Auto 2', seats: [null, null, null, null, null] },
+      { id: 'c3', name: 'Auto 3', seats: [null, null, null, null, null] },
       { id: 'c4', name: 'Auto 4', seats: [null, null, null, null, null] },
     ],
   };
@@ -532,6 +517,7 @@ export default function App() {
   const [draft, setDraft] = useState('');
   const [nameError, setNameError] = useState(false);
   const [resetArmed, setResetArmed] = useState(false);
+  const [deleteArmed, setDeleteArmed] = useState(false);
 
   const inputRef = useRef<HTMLInputElement>(null);
   const loginRef = useRef<HTMLDivElement>(null);
@@ -640,6 +626,33 @@ export default function App() {
     });
   };
 
+  // Remove the current user everywhere (votes, package, seat) and sign out.
+  const deleteAccount = () => {
+    if (!currentUser) return;
+    if (!deleteArmed) {
+      setDeleteArmed(true);
+      setTimeout(() => setDeleteArmed(false), 3000);
+      return;
+    }
+    setState((prev) => {
+      const strip = (m: Record<string, string[]>) => {
+        const out: Record<string, string[]> = {};
+        for (const k in m) out[k] = m[k].filter((n) => n !== currentUser);
+        return out;
+      };
+      const packages = { ...prev.packages };
+      delete packages[currentUser];
+      const cars = prev.cars.map((c) => ({
+        ...c,
+        seats: c.seats.map((s) => (s === currentUser ? null : s)),
+      }));
+      return { dates: strip(prev.dates), restaurants: strip(prev.restaurants), packages, cars };
+    });
+    setDeleteArmed(false);
+    setCurrentUser('');
+    setDraft('');
+  };
+
   const handleReset = () => {
     if (!resetArmed) {
       setResetArmed(true);
@@ -684,30 +697,44 @@ export default function App() {
             className="rounded-[24px] bg-[#f5f5f7] p-4"
           >
             {currentUser ? (
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#0071e3] text-[15px] font-semibold text-white">
-                    {initials(currentUser)}
+              <div>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#0071e3] text-[15px] font-semibold text-white">
+                      {initials(currentUser)}
+                    </div>
+                    <div>
+                      <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-[#86868b]">
+                        Angemeldet als
+                      </p>
+                      <p className="text-[16px] font-semibold tracking-tight text-[#1D1D1F]">
+                        {currentUser}
+                      </p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-[#86868b]">
-                      Angemeldet als
-                    </p>
-                    <p className="text-[16px] font-semibold tracking-tight text-[#1D1D1F]">
-                      {currentUser}
-                    </p>
-                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setCurrentUser('');
+                      setDraft('');
+                      setDeleteArmed(false);
+                    }}
+                    className="px-2 py-1 text-[13px] font-medium text-[#0071e3]"
+                  >
+                    Wechseln
+                  </button>
                 </div>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setCurrentUser('');
-                    setDraft('');
-                  }}
-                  className="px-2 py-1 text-[13px] font-medium text-[#0071e3]"
-                >
-                  Wechseln
-                </button>
+                <div className="mt-3 flex justify-end border-t border-black/[0.06] pt-2.5">
+                  <button
+                    type="button"
+                    onClick={deleteAccount}
+                    className={`text-[12px] font-medium transition-colors ${
+                      deleteArmed ? 'text-[#d23f3f]' : 'text-[#b0b0b5] hover:text-[#86868b]'
+                    }`}
+                  >
+                    {deleteArmed ? 'Wirklich? Nochmal tippen zum Löschen' : 'Account löschen'}
+                  </button>
+                </div>
               </div>
             ) : (
               <form onSubmit={submitName}>
@@ -861,7 +888,7 @@ export default function App() {
               onClick={handleReset}
               className="text-[12px] text-[#b0b0b5] transition-colors hover:text-[#86868b]"
             >
-              {resetArmed ? 'Wirklich? Nochmal tippen zum Zurücksetzen' : 'Demo-Daten zurücksetzen'}
+              {resetArmed ? 'Wirklich? Nochmal tippen zum Zurücksetzen' : 'Alles zurücksetzen'}
             </button>
           </footer>
         </div>
