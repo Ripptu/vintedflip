@@ -1,20 +1,30 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://ai.google.dev/static/site-assets/images/share-ais-513315318.png" />
-</div>
+# Paintball Day Planner
 
-# Run and deploy your AI Studio app
+Eine **mobile-first** Webapp zur Planung eines Gruppen-Paintball-Ausflugs inklusive
+After-Activity-Food. Design im Apple-/WHOOP-Stil: reinweißer Hintergrund, viel Weißraum,
+eine dezente blaue Akzentfarbe und feine Linien-Statistiken.
 
-This contains everything you need to run your app locally.
+## Features
 
-View your app in AI Studio: https://ai.studio/apps/ed124c65-228a-4f38-a394-e850515ebf92
+- **Anmeldung** über ein cleanes Namensfeld (`Angemeldet als: …`).
+- **Terminumfrage** (Mehrfachauswahl) mit Live-Auswertung.
+- **Restaurant-Umfrage** (Mehrfachauswahl) mit Live-Auswertung.
+- **Paintball-Paket** (Einzelauswahl: 30€ / 60€ / 90€).
+- **Fahrgemeinschaften**: 4 Autos à 5 Plätze (1 Fahrer + 4 Beifahrer), keine Doppelbelegung.
+- **Live-Dashboard** für alle Umfragen mit „MEISTGEWÄHLT“-Anzeige und Wählerlisten.
+- **Persistenz** über `localStorage` (simuliert eine gemeinsame Echtzeit-Datenbank),
+  vorbefüllt mit realistischen Mock-Daten.
 
-## Run Locally
+## Tech-Stack
 
-**Prerequisites:**  Node.js
+React 19 · TypeScript · Tailwind CSS v4 · lucide-react · motion (Framer Motion) · Vite
 
+Die gesamte App-Logik liegt als Single-File-Komponente in [`src/App.tsx`](src/App.tsx).
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+## Lokal starten
+
+**Voraussetzung:** Node.js
+
+1. Abhängigkeiten installieren: `npm install`
+2. App starten: `npm run dev`
+3. Build erstellen: `npm run build`
